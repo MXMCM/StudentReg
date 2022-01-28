@@ -35,3 +35,20 @@ module.exports.renderAddForm= function (req, res) {
     };
     res.render('course/add',{course,departments});
 };
+module.exports.addCourse = async function (req, res) {
+    const course = await Course.create({
+        name: req.body.name,
+        department: req.body.department,
+        instructor_name: req.body.instructor_name,
+        description: req.body.description
+    });
+    res.redirect(`/courses/profile/${course.id}`);
+};
+module.exports.deleteCourse = async function (req, res) {
+    await Course.destroy({
+        where: {
+            id:req.params.id
+        }
+    });
+    res.redirect('/courses');
+};
