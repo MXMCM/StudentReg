@@ -1,12 +1,21 @@
-const{Student} = require('../models');
+const{Student,Course,course} = require('../models');
 
 module.exports.viewAll = async function (req, res) {
     const students = await Student.findAll();
     res.render('student/view_all',{students});
 };
 module.exports.viewProfile= async function (req,res){
-    const student = await Student.findByPk(req.params.id);
-    res.render('student/profile',{student});
+    const student = await Student.findByPk(req.params.id, {
+        include: 'courses'
+    });
+    const courses = await Course.findAll();
+    let availableCourses = [];
+    for(let i=0; i<courses.length; i++){
+        if (!studentHasCourse(student,course[i])){
+            availableCourses.push(courses[i]);
+        }
+    }
+    res.render('student/profile',{student,availableCourses});
 };
 module.exports.renderEditForm = async function(req,res){
     const student = await Student.findByPk(req.params.id);
@@ -48,3 +57,11 @@ module.exports.deleteStudent = async function (req, res) {
     });
     res.redirect('/students');
 };
+function studentHasCourse(student,course){
+    for (let i=0; i<student.courses.length; i++){
+        if(course.id === student.courses[i].id){
+            return true
+        }
+    }
+    return false
+}
